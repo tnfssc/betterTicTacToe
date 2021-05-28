@@ -29,7 +29,7 @@ const useStyles = makeStyles({
 const Grid: FC<{ width?: number; height?: number }> = ({ height = 3, width = 3 }) => {
   const classes = useStyles();
   const resetState = useStore(s => s.resetState);
-  useKey("r", () => resetState(width, height));
+  useKey(["r", "R"], () => resetState(width, height));
   return (
     <div className={classes.root}>
       {Array(height)
