@@ -19,6 +19,7 @@ const useStyles = makeStyles({
     maxWidth: "128px",
     transition: "box-shadow 200ms",
     cursor: "grab",
+    touchAction: "none",
   },
   underglow: {
     boxShadow: "0px 0px 10px grey",
