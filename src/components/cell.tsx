@@ -1,10 +1,12 @@
-import React, { FC, useCallback, useEffect, useState } from "react";
+import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { makeStyles } from "@material-ui/styles";
 
 import { useDrag } from "react-use-gesture";
 
 import useStore, { Player } from "../stores/main";
 import clsx from "clsx";
+import ContextMenu from "./contextmenu";
+import { ItemProps } from "react-contexify";
 
 const useStyles = makeStyles({
   root: {
@@ -17,7 +19,7 @@ const useStyles = makeStyles({
     maxHeight: "128px",
     minWidth: "100px",
     maxWidth: "128px",
-    transition: "box-shadow 200ms",
+    transition: "box-shadow 200ms, background-color 200ms",
     cursor: "grab",
     touchAction: "none",
   },
@@ -45,41 +47,42 @@ const Cell: FC<{ position: { row: number; col: number } }> = ({ position }) => {
     useCallback(s => s.state[position.row][position.col], [position.row, position.col])
   );
   useEffect(() => setSelectSize(size), [size]);
-  const { play, maxNumber, numbers } = useStore(({ play, maxNumber, playerNumbers, playerTurn }) => ({
+  const { play, numbers, playerTurn } = useStore(({ play, maxNumber, playerNumbers, playerTurn }) => ({
     play,
     maxNumber,
     numbers: playerNumbers[playerTurn],
+    playerTurn,
   }));
   const [selectSize, setSelectSize] = useState(size);
   const [pressed, setPressed] = useState(false);
   const bindDrag = useDrag(({ down, movement: [_, my] }) => {
+    const v = Math.floor(my / 50);
     if (!down) {
-      handleClick();
       setPressed(false);
+      if (size === 0 && selectSize === 0 && player === Player.Null) return play(selectSize, position.row, position.col);
+      if (numbers.includes(selectSize) && selectSize > size) play(selectSize, position.row, position.col);
     } else {
       setPressed(true);
-      const v = Math.floor(my / 50);
-      if (v <= 0) return;
-      if (v > maxNumber()) return;
-      if (v <= size) return;
-      if (!numbers.includes(v)) return;
-      setSelectSize(v);
+      if (numbers.includes(v) && v >= size) setSelectSize(v);
     }
   });
-  const handleClick = () => {
-    if (selectSize <= size) return setSelectSize(size);
-    play(selectSize, position.row, position.col);
-  };
+  const menuItems = useMemo<ItemProps[]>(
+    () => numbers.map(num => ({ children: num, style: { fontFamily: "Consolas" } })),
+    [numbers]
+  );
   return (
-    <div
-      className={clsx(classes.root, {
-        [classes.underglow]: pressed,
-        [classes.blue]: player === Player.Blue,
-        [classes.red]: player === Player.Red,
-      })}
-      {...bindDrag()}>
-      <span className={classes.text}>{selectSize}</span>
-    </div>
+    <span>
+      <ContextMenu
+        menuItems={menuItems}
+        className={clsx(classes.root, {
+          [classes.underglow]: pressed,
+          [classes.blue]: player === Player.Blue || (pressed && playerTurn === "blue"),
+          [classes.red]: player === Player.Red || (pressed && playerTurn === "red"),
+        })}
+        {...bindDrag()}>
+        <span className={classes.text}>{selectSize}</span>
+      </ContextMenu>
+    </span>
   );
 };
 

@@ -17,10 +17,10 @@ export interface Store {
   play: (size: number, row: number, col: number) => void;
 }
 
-const naturalNumbers = (noOfNumbers: number) =>
-  Array(noOfNumbers)
+const wholeNumbers = (noOfNumbers: number) =>
+  Array(noOfNumbers + 1)
     .fill(0)
-    .map((_, i) => i + 1);
+    .map((_, i) => i);
 
 const endGame = (state: Store["state"]): Player => {
   let primaryDiagCount = 0;
@@ -47,8 +47,8 @@ const useStore = zustand<Store>((set, get) => ({
   winner: Player.Null,
   playerTurn: Player.Blue,
   playerNumbers: {
-    blue: naturalNumbers(3 * 3 - 1),
-    red: naturalNumbers(3 * 3 - 1),
+    blue: wholeNumbers(3 * 3 - 1),
+    red: wholeNumbers(3 * 3 - 1),
   },
   determineWinner: () => endGame(get().state),
   maxNumber: () => get().state.length * get().state[0].length - 1,
@@ -59,8 +59,8 @@ const useStore = zustand<Store>((set, get) => ({
       state: Array(height).fill(Array(width).fill({ size: 0, player: Player.Null })),
       playerTurn: Player.Blue,
       playerNumbers: {
-        blue: naturalNumbers(get().maxNumber()),
-        red: naturalNumbers(get().maxNumber()),
+        blue: wholeNumbers(get().maxNumber()),
+        red: wholeNumbers(get().maxNumber()),
       },
     });
   },
@@ -69,17 +69,24 @@ const useStore = zustand<Store>((set, get) => ({
     set(({ state, playerTurn, playerNumbers }) => {
       if (!playerNumbers[playerTurn].includes(size))
         throw new Error(`This number is already used up! ${size}, ${playerTurn}`);
-      if (state[row][col].size >= size)
+      if (
+        !(state[row][col].size === 0 && size === 0 && state[row][col].player === Player.Null) &&
+        state[row][col].size >= size
+      )
         throw new Error(
           `Cannot overrule a bigger number! Pos: (${row},${col}), Size: ${state[row][col].size}, New: ${size}`
         );
       return {
         state: state.map((r, i) => (i !== row ? r : r.map((c, i) => (i !== col ? c : { player: playerTurn, size })))),
         playerTurn: playerTurn === Player.Blue ? Player.Red : Player.Blue,
-        playerNumbers: {
-          ...playerNumbers,
-          [playerTurn]: playerNumbers[playerTurn].filter(v => v !== size),
-        },
+        ...(size !== 0
+          ? {
+              playerNumbers: {
+                ...playerNumbers,
+                [playerTurn]: playerNumbers[playerTurn].filter(v => v !== size),
+              },
+            }
+          : { playerNumbers }),
       };
     });
     const winner = get().determineWinner();
