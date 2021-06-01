@@ -1,9 +1,11 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import { makeStyles } from "@material-ui/styles";
-import { useKey } from "rooks";
-import useStore from "../stores/main";
+import { useKey, useToggle } from "rooks";
+import useStore, { Player } from "../stores/main";
 import Cell from "./cell";
 import clsx from "clsx";
+
+import confirm from "./confirm";
 
 const useStyles = makeStyles({
   root: {
@@ -12,6 +14,7 @@ const useStyles = makeStyles({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-evenly",
+    transition: "background-color 200ms",
   },
   backgroundBlue: {
     backgroundColor: "#00054c",
@@ -36,8 +39,27 @@ const useStyles = makeStyles({
 const Grid: FC<{ width?: number; height?: number }> = ({ height = 3, width = 3 }) => {
   const classes = useStyles();
   const playerTurn = useStore(s => s.playerTurn);
+  const winner = useStore(s => s.winner);
   const resetState = useStore(s => s.resetState);
-  useKey(["r", "R"], () => resetState(width, height));
+  const [confirming, toggleConfirming] = useToggle(false);
+  useEffect(() => {
+    if (winner !== Player.Null) {
+      if (confirming) return;
+      toggleConfirming(true);
+      confirm(`The winner is ${winner} player! Restart game?`).then(t => {
+        toggleConfirming(false);
+        if (t) resetState(width, height);
+      });
+    }
+  }, [winner]);
+  useKey(["r", "R"], () => {
+    if (confirming) return;
+    toggleConfirming(true);
+    confirm("Reset?").then(t => {
+      toggleConfirming(false);
+      if (t) resetState(width, height);
+    });
+  });
   return (
     <div
       className={clsx(classes.root, {

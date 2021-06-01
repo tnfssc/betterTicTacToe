@@ -62,6 +62,7 @@ const useStore = zustand<Store>((set, get) => ({
         blue: wholeNumbers(get().maxNumber()),
         red: wholeNumbers(get().maxNumber()),
       },
+      winner: Player.Null,
     });
   },
   play: (size: number, row: number, col: number) => {
