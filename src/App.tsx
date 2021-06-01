@@ -5,7 +5,7 @@ import Grid from "./components/grid";
 const App = () => {
   return (
     <div>
-      <Grid />
+      <Grid width={4} height={4} />
     </div>
   );
 };
