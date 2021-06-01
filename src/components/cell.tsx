@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { makeStyles } from "@material-ui/styles";
 
 import { useDrag } from "react-use-gesture";
@@ -43,6 +43,7 @@ const useStyles = makeStyles({
 
 const Cell: FC<{ position: { row: number; col: number } }> = ({ position }) => {
   const classes = useStyles();
+  const usedClickButton = useRef<number>();
   const { player, size } = useStore(
     useCallback(s => s.state[position.row][position.col], [position.row, position.col])
   );
@@ -55,10 +56,12 @@ const Cell: FC<{ position: { row: number; col: number } }> = ({ position }) => {
   }));
   const [selectSize, setSelectSize] = useState(size);
   const [pressed, setPressed] = useState(false);
-  const bindDrag = useDrag(({ down, movement: [_, my] }) => {
+  const bindDrag = useDrag(({ down, movement: [_, my], buttons }) => {
+    if (buttons !== 0) usedClickButton.current = buttons;
     const v = Math.floor(my / 50);
     if (!down) {
       setPressed(false);
+      if (usedClickButton.current === 2) return;
       if (size === 0 && selectSize === 0 && player === Player.Null) return play(selectSize, position.row, position.col);
       if (numbers.includes(selectSize) && selectSize > size) play(selectSize, position.row, position.col);
     } else {
@@ -67,7 +70,12 @@ const Cell: FC<{ position: { row: number; col: number } }> = ({ position }) => {
     }
   });
   const menuItems = useMemo<ItemProps[]>(
-    () => numbers.map(num => ({ children: num, style: { fontFamily: "Consolas" } })),
+    () =>
+      numbers.map(num => ({
+        children: num,
+        style: { fontFamily: "Consolas" },
+        onClick: () => play(num, position.row, position.col),
+      })),
     [numbers]
   );
   return (
