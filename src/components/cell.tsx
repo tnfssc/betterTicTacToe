@@ -1,4 +1,5 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import * as React from "react";
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { makeStyles } from "@material-ui/styles";
 
 import { useDrag } from "react-use-gesture";
@@ -45,7 +46,7 @@ const Cell: FC<{ position: { row: number; col: number } }> = ({ position }) => {
   const classes = useStyles();
   const usedClickButton = useRef<number>();
   const { player, size } = useStore(
-    useCallback(s => s.state[position.row][position.col], [position.row, position.col])
+    useCallback((s) => s.state[position.row][position.col], [position.row, position.col]),
   );
   useEffect(() => setSelectSize(size), [size]);
   const { play, numbers, playerTurn } = useStore(({ play, maxNumber, playerNumbers, playerTurn }) => ({
@@ -71,12 +72,12 @@ const Cell: FC<{ position: { row: number; col: number } }> = ({ position }) => {
   });
   const menuItems = useMemo<ItemProps[]>(
     () =>
-      numbers.map(num => ({
+      numbers.map((num) => ({
         children: num,
         style: { fontFamily: "Consolas" },
         onClick: () => play(num, position.row, position.col),
       })),
-    [numbers]
+    [numbers, play, position.row, position.col],
   );
   return (
     <span>
@@ -87,7 +88,8 @@ const Cell: FC<{ position: { row: number; col: number } }> = ({ position }) => {
           [classes.blue]: player === Player.Blue || (pressed && playerTurn === "blue"),
           [classes.red]: player === Player.Red || (pressed && playerTurn === "red"),
         })}
-        {...bindDrag()}>
+        {...bindDrag()}
+      >
         <span className={classes.text}>{selectSize}</span>
       </ContextMenu>
     </span>

@@ -1,4 +1,4 @@
-import zustand, { UseStore } from "zustand";
+import zustand from "zustand";
 
 export const enum Player {
   Blue = "blue",
@@ -26,9 +26,9 @@ const endGame = (state: Store["state"]): Player => {
   let primaryDiagCount = 0;
   let secondaryDiagCount = 0;
   for (let i = 0; i < state.length; i++) {
-    if (state[i][0].player !== Player.Null && state[i].every(cell => state[i][0].player === cell.player))
+    if (state[i][0].player !== Player.Null && state[i].every((cell) => state[i][0].player === cell.player))
       return state[i][0].player; // Row check
-    if (state[0][i].player !== Player.Null && state.every(row => state[0][i].player === row[i].player))
+    if (state[0][i].player !== Player.Null && state.every((row) => state[0][i].player === row[i].player))
       return state[0][i].player; // Column check
     if (state[0][0].player !== Player.Null && state[i][i].player === state[0][0].player) primaryDiagCount++; // Primary diagonal check
     if (
@@ -42,7 +42,7 @@ const endGame = (state: Store["state"]): Player => {
   return Player.Null;
 };
 
-const createTicTacToeStore = (initialWidth: number = 3, initialHeight: number = 3) =>
+const createTicTacToeStore = (initialWidth = 3, initialHeight = 3) =>
   zustand<Store>((set, get) => ({
     state: Array(initialHeight).fill(Array(initialWidth).fill({ size: 0, player: Player.Null })),
     winner: Player.Null,
@@ -76,7 +76,7 @@ const createTicTacToeStore = (initialWidth: number = 3, initialHeight: number = 
           state[row][col].size >= size
         )
           throw new Error(
-            `Cannot overrule a bigger number! Pos: (${row},${col}), Size: ${state[row][col].size}, New: ${size}`
+            `Cannot overrule a bigger number! Pos: (${row},${col}), Size: ${state[row][col].size}, New: ${size}`,
           );
         return {
           state: state.map((r, i) => (i !== row ? r : r.map((c, i) => (i !== col ? c : { player: playerTurn, size })))),
@@ -85,7 +85,7 @@ const createTicTacToeStore = (initialWidth: number = 3, initialHeight: number = 
             ? {
                 playerNumbers: {
                   ...playerNumbers,
-                  [playerTurn]: playerNumbers[playerTurn].filter(v => v !== size),
+                  [playerTurn]: playerNumbers[playerTurn].filter((v) => v !== size),
                 },
               }
             : { playerNumbers }),

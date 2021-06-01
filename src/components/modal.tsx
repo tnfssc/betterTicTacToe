@@ -1,6 +1,11 @@
-import React, { FC } from "react";
+import * as React from "react";
+import { FC } from "react";
 import ReactModal, { Props as ReactModalProps } from "react-modal";
 
-ReactModal.setAppElement(document.getElementById("modal")!);
+const appElement = document.getElementById("modal");
 
-export const Modal: FC<ReactModalProps> = props => <ReactModal {...props} />;
+if (!appElement) throw new Error("div with id 'modal' not found!");
+
+ReactModal.setAppElement(appElement);
+
+export const Modal: FC<ReactModalProps> = (props) => <ReactModal {...props} />;

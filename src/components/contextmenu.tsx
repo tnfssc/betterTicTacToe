@@ -1,4 +1,5 @@
-import React, { FC, HTMLAttributes, ReactNode, useState } from "react";
+import * as React from "react";
+import { FC, HTMLAttributes, ReactNode, useState } from "react";
 import { Menu, Item, useContextMenu, ItemProps, animation } from "react-contexify";
 
 const ContextMenu: FC<

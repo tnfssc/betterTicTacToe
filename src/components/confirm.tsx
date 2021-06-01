@@ -1,6 +1,7 @@
 import { makeStyles } from "@material-ui/styles";
 import clsx from "clsx";
-import React, { ReactNode } from "react";
+import * as React from "react";
+import { ReactNode } from "react";
 import { confirmable, createConfirmation, ReactConfirmProps } from "react-confirm";
 import { Modal } from "./modal";
 
@@ -59,7 +60,8 @@ export const ConfirmComponent = confirmable(({ show, proceed, confirmation = "Ar
     <Modal
       closeTimeoutMS={100}
       isOpen={show}
-      style={{ content: { background: "none", border: "none" }, overlay: { backgroundColor: "rgba(0,0,0,0.5)" } }}>
+      style={{ content: { background: "none", border: "none" }, overlay: { backgroundColor: "rgba(0,0,0,0.5)" } }}
+    >
       <div className={classes.content}>
         <div className={classes.container}>
           <div style={{ width: "100%", paddingBottom: 24 }}>{confirmation}</div>
@@ -80,5 +82,5 @@ export const ConfirmComponent = confirmable(({ show, proceed, confirmation = "Ar
 
 export const confirmPromise = createConfirmation(ConfirmComponent);
 
-const confirm = (confirmation: ReactNode) => confirmPromise({ confirmation });
+const confirm = (confirmation: ReactNode): Promise<string> => confirmPromise({ confirmation });
 export default confirm;

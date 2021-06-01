@@ -1,4 +1,5 @@
-import React, { FC, useEffect } from "react";
+import * as React from "react";
+import { FC, useEffect } from "react";
 import { makeStyles } from "@material-ui/styles";
 import { useKey, useToggle } from "rooks";
 import useStore, { Player } from "../stores/main";
@@ -38,24 +39,24 @@ const useStyles = makeStyles({
 
 const Grid: FC<{ width?: number; height?: number }> = ({ height = 3, width = 3 }) => {
   const classes = useStyles();
-  const playerTurn = useStore(s => s.playerTurn);
-  const winner = useStore(s => s.winner);
-  const resetState = useStore(s => s.resetState);
+  const playerTurn = useStore((s) => s.playerTurn);
+  const winner = useStore((s) => s.winner);
+  const resetState = useStore((s) => s.resetState);
   const [confirming, toggleConfirming] = useToggle(false);
   useEffect(() => {
     if (winner !== Player.Null) {
       if (confirming) return;
       toggleConfirming(true);
-      confirm(`The winner is ${winner} player! Restart game?`).then(t => {
+      confirm(`The winner is ${winner} player! Restart game?`).then((t) => {
         toggleConfirming(false);
         if (t) resetState(width, height);
       });
     }
-  }, [winner]);
+  }, [winner, confirming, height, resetState, toggleConfirming, width]);
   useKey(["r", "R"], () => {
     if (confirming) return;
     toggleConfirming(true);
-    confirm("Reset?").then(t => {
+    confirm("Reset?").then((t) => {
       toggleConfirming(false);
       if (t) resetState(width, height);
     });
@@ -65,7 +66,8 @@ const Grid: FC<{ width?: number; height?: number }> = ({ height = 3, width = 3 }
       className={clsx(classes.root, {
         [classes.backgroundBlue]: playerTurn === "blue",
         [classes.backgroundRed]: playerTurn === "red",
-      })}>
+      })}
+    >
       {Array(height)
         .fill(0)
         .map((_, row) => (
